@@ -1,0 +1,510 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Swappo Chat Service API",
+    "description": "API for managing chat conversations between users with accepted trade offers",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local development server"
+    },
+    {
+      "url": "http://chat_service:8000",
+      "description": "Docker container service"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Root health check",
+        "responses": {
+          "200": {
+            "description": "Service is running"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Detailed health check",
+        "responses": {
+          "200": {
+            "description": "Service health status"
+          }
+        }
+      }
+    },
+    "/api/v1/chat-rooms": {
+      "post": {
+        "tags": ["Chat Rooms"],
+        "summary": "Create a new chat room",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRoomCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Chat room created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatRoomResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Chat Rooms"],
+        "summary": "List chat rooms for a user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of chat rooms"
+          }
+        }
+      }
+    },
+    "/api/v1/chat-rooms/{chat_room_id}": {
+      "get": {
+        "tags": ["Chat Rooms"],
+        "summary": "Get a specific chat room",
+        "parameters": [
+          {
+            "name": "chat_room_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat room details"
+          },
+          "404": {
+            "description": "Chat room not found"
+          }
+        }
+      }
+    },
+    "/api/v1/chat-rooms/trade-offer/{trade_offer_id}": {
+      "get": {
+        "tags": ["Chat Rooms"],
+        "summary": "Get chat room by trade offer ID",
+        "parameters": [
+          {
+            "name": "trade_offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat room details"
+          },
+          "404": {
+            "description": "Chat room not found"
+          }
+        }
+      }
+    },
+    "/api/v1/chat-rooms/{chat_room_id}/deactivate": {
+      "patch": {
+        "tags": ["Chat Rooms"],
+        "summary": "Deactivate a chat room",
+        "parameters": [
+          {
+            "name": "chat_room_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat room deactivated"
+          },
+          "404": {
+            "description": "Chat room not found"
+          }
+        }
+      }
+    },
+    "/api/v1/messages": {
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Send a new message",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Chat room not found"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Messages"],
+        "summary": "List messages in a chat room",
+        "parameters": [
+          {
+            "name": "chat_room_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of messages"
+          },
+          "404": {
+            "description": "Chat room not found"
+          }
+        }
+      }
+    },
+    "/api/v1/messages/{message_id}": {
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Get a specific message",
+        "parameters": [
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message details"
+          },
+          "404": {
+            "description": "Message not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Messages"],
+        "summary": "Update a message (mark as read)",
+        "parameters": [
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message updated"
+          },
+          "404": {
+            "description": "Message not found"
+          }
+        }
+      }
+    },
+    "/api/v1/messages/mark-read": {
+      "patch": {
+        "tags": ["Messages"],
+        "summary": "Mark all messages as read in a chat room",
+        "parameters": [
+          {
+            "name": "chat_room_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages marked as read"
+          },
+          "404": {
+            "description": "Chat room not found"
+          }
+        }
+      }
+    },
+    "/api/v1/statistics": {
+      "get": {
+        "tags": ["Statistics"],
+        "summary": "Get chat statistics",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat statistics"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChatRoomCreate": {
+        "type": "object",
+        "required": ["trade_offer_id", "user1_id", "user2_id"],
+        "properties": {
+          "trade_offer_id": {
+            "type": "integer",
+            "description": "ID of the accepted trade offer"
+          },
+          "user1_id": {
+            "type": "string",
+            "description": "First participant user ID"
+          },
+          "user2_id": {
+            "type": "string",
+            "description": "Second participant user ID"
+          }
+        }
+      },
+      "ChatRoomResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "trade_offer_id": {
+            "type": "integer"
+          },
+          "user1_id": {
+            "type": "string"
+          },
+          "user2_id": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "last_message_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageCreate": {
+        "type": "object",
+        "required": ["chat_room_id", "sender_id", "content"],
+        "properties": {
+          "chat_room_id": {
+            "type": "integer",
+            "description": "ID of the chat room"
+          },
+          "sender_id": {
+            "type": "string",
+            "description": "ID of the user sending the message"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "description": "Message content"
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "chat_room_id": {
+            "type": "integer"
+          },
+          "sender_id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["sent", "delivered", "read"]
+          },
+          "read_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageUpdate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["sent", "delivered", "read"]
+          }
+        }
+      },
+      "ChatStatistics": {
+        "type": "object",
+        "properties": {
+          "total_rooms": {
+            "type": "integer"
+          },
+          "active_rooms": {
+            "type": "integer"
+          },
+          "total_messages": {
+            "type": "integer"
+          },
+          "total_unread_messages": {
+            "type": "integer"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
