@@ -26,6 +26,7 @@ repos:
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: mixed-line-ending
+        args: ['--fix=lf']
       - id: detect-private-key
 
   # Python-specific hooks (for backend services)
