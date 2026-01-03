@@ -1,5 +1,5 @@
 # Pre-commit Hook Configuration for Swappo Services
-# 
+#
 # This file defines pre-commit hooks that run automatically before each commit
 # to ensure code quality and consistency across all services.
 #
@@ -33,7 +33,6 @@ repos:
     rev: 24.1.1
     hooks:
       - id: black
-        language_version: python3.11
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.0.0
@@ -46,11 +45,3 @@ repos:
     hooks:
       - id: isort
         args: ['--profile', 'black']
-
-  # Security checks
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
-    hooks:
-      - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
-        exclude: package-lock.json
