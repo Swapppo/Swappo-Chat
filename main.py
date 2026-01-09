@@ -104,11 +104,13 @@ async def root():
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Detailed health check endpoint"""
+    from datetime import datetime
+
     return {
         "service": "Swappo Chat Service",
         "status": "healthy",
         "version": "1.0.0",
-        "timestamp": func.now(),
+        "timestamp": datetime.now().isoformat(),
     }
 
 
