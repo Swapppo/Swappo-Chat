@@ -1,10 +1,12 @@
 # test pre commit hook
 
+import time
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import and_, desc, func, or_
 from sqlalchemy.orm import Session
 
@@ -12,6 +14,7 @@ from database import get_db, init_db
 
 # Import HTTP resilience utilities
 from http_client import send_notification_with_retry
+from metrics import record_http_request
 from models import (
     ChatRoomCreate,
     ChatRoomDB,
@@ -49,6 +52,30 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Prometheus instrumentation
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+
+
+# Middleware to track HTTP request metrics
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    if request.url.path == "/metrics":
+        return await call_next(request)
+
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+
+    record_http_request(
+        method=request.method,
+        endpoint=request.url.path,
+        status_code=response.status_code,
+        duration=duration,
+    )
+
+    return response
+
 
 # Configure CORS
 app.add_middleware(
