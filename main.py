@@ -3,13 +3,15 @@
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
-import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import and_, desc, func, or_
 from sqlalchemy.orm import Session
 
 from database import get_db, init_db
+
+# Import HTTP resilience utilities
+from http_client import send_notification_with_retry
 from models import (
     ChatRoomCreate,
     ChatRoomDB,
@@ -60,7 +62,7 @@ app.add_middleware(
 
 async def send_message_notification(message: MessageDB, recipient_id: str):
     """
-    Send notification when a new message is received.
+    Send notification when a new message is received (with retry).
 
     Args:
         message: The message that was sent
@@ -77,22 +79,11 @@ async def send_message_notification(message: MessageDB, recipient_id: str):
     print(
         f"📤 Attempting to send notification to user {recipient_id} for message {message.id}"
     )
-    print(f"📤 Notification data: {notification_data}")
 
-    # Send notification to notification service
-    try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.post(
-                f"{NOTIFICATION_SERVICE_URL}/api/v1/notifications",
-                json=notification_data,
-            )
-            print(f"📤 Notification service response status: {response.status_code}")
-            if response.status_code == 201:
-                print("✅ Notification sent successfully")
-            else:
-                print(f"⚠️ Notification service returned: {response.text}")
-    except Exception as e:
-        print(f"⚠️ Failed to send notification: {str(e)}")
+    # Send notification with retry logic
+    await send_notification_with_retry(
+        f"{NOTIFICATION_SERVICE_URL}/api/v1/notifications", notification_data
+    )
 
 
 @app.get("/", tags=["Health"])
