@@ -48,8 +48,45 @@ async def lifespan(app: FastAPI):
 # Initialize FastAPI app
 app = FastAPI(
     title="Swappo Chat Service",
-    description="Microservice for managing chat conversations between users with accepted trade offers in the Swappo app",
+    description="""## Real-time Messaging API
+
+**Swappo Chat Service** enables communication between users with accepted trades.
+
+### Features
+- 💬 Real-time messaging between matched users
+- 🏠 Chat room management (auto-created on trade acceptance)
+- 📨 Message CRUD operations
+- ✅ Read receipts and message status tracking
+- 🔔 Push notifications on new messages
+- 📊 Chat statistics and analytics
+
+### Chat Workflow
+1. Chat room created automatically when trade accepted
+2. Send messages at `/api/v1/chat-rooms/{room_id}/messages`
+3. Recipients receive push notification
+4. Fetch conversation history with pagination
+5. Mark messages as read for read receipts
+
+### Resilience
+- Retry logic for notification delivery (3 attempts)
+- Messages saved even if notifications fail
+    """,
     version="1.0.0",
+    contact={
+        "name": "Swappo API Support",
+        "url": "https://swappo.art",
+        "email": "api@swappo.art",
+    },
+    license_info={
+        "name": "MIT",
+    },
+    openapi_tags=[
+        {"name": "Health", "description": "Service health and status endpoints"},
+        {"name": "Chat Rooms", "description": "Chat room creation and management"},
+        {"name": "Messages", "description": "Send and retrieve messages"},
+        {"name": "Statistics", "description": "Chat analytics and metrics"},
+    ],
+    root_path="/chat",  # Fix for Kong reverse proxy - enables correct OpenAPI schema URLs
     lifespan=lifespan,
 )
 
