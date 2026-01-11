@@ -1,71 +1,64 @@
-# Swappo Chat Service
+# Swappo-Chat
 
-The Chat microservice enables users who have accepted trade offers to communicate with each other.
+Chat microservice for the Swappo platform enabling communication between users with accepted trade offers.
+
+## Features
+
+- **Chat Room Management**: Automatic creation for accepted trade offers
+- **Messaging**: Send, retrieve, and track message status
+- **Unread Counts**: Track unread messages per room
+- **Notification Integration**: Automatic notifications for new messages
+- **Statistics**: Chat analytics and metrics
+- **Prometheus Metrics**: Built-in monitoring
 
 ## Quick Start
 
-### Using Docker Compose
+### Docker (Recommended)
 
 ```bash
-docker-compose up --build
+docker-compose up -d
 ```
-
-The service will be available at:
-- **API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **PgAdmin**: http://localhost:5050
 
 ### Local Development
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the service
 uvicorn main:app --reload
 ```
 
-## Key Features
-
-- ✅ Chat room creation for accepted trade offers
-- ✅ Real-time messaging between trade participants
-- ✅ Message status tracking (sent/delivered/read)
-- ✅ Unread message counts
-- ✅ Notification integration
-- ✅ Chat statistics and analytics
-
 ## API Endpoints
 
-### Chat Rooms
-- `POST /api/v1/chat-rooms` - Create chat room
-- `GET /api/v1/chat-rooms` - List user's chat rooms
-- `GET /api/v1/chat-rooms/{id}` - Get chat room details
-- `GET /api/v1/chat-rooms/trade-offer/{id}` - Get chat room by trade offer
-- `PATCH /api/v1/chat-rooms/{id}/deactivate` - Deactivate chat room
-
-### Messages
-- `POST /api/v1/messages` - Send message
-- `GET /api/v1/messages` - List messages in room
-- `GET /api/v1/messages/{id}` - Get message details
-- `PATCH /api/v1/messages/{id}` - Update message (mark as read)
-- `PATCH /api/v1/messages/mark-read` - Mark all as read
-
-### Statistics
-- `GET /api/v1/statistics` - Get chat statistics
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Service info |
+| GET | `/health` | Health check |
+| POST | `/api/v1/chat-rooms` | Create chat room |
+| GET | `/api/v1/chat-rooms` | List user's chat rooms |
+| GET | `/api/v1/chat-rooms/{id}` | Get chat room details |
+| GET | `/api/v1/chat-rooms/trade-offer/{id}` | Get room by trade offer |
+| PATCH | `/api/v1/chat-rooms/{id}/deactivate` | Deactivate chat room |
+| POST | `/api/v1/messages` | Send message |
+| GET | `/api/v1/messages` | List messages in room |
+| GET | `/api/v1/messages/{id}` | Get message details |
+| PATCH | `/api/v1/messages/{id}` | Mark message as read |
+| PATCH | `/api/v1/messages/mark-read` | Mark all as read |
+| GET | `/api/v1/statistics` | Get chat statistics |
+| GET | `/metrics` | Prometheus metrics |
 
 ## Environment Variables
 
-```env
-DATABASE_URL=postgresql://swappo_user:swappo_pass@localhost:5432/swappo_chat
-SQL_ECHO=false
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DATABASE_URL` | - | PostgreSQL connection string |
+| `SQL_ECHO` | false | Enable SQL query logging |
+| `NOTIFICATION_SERVICE_URL` | http://notifications_service:8000 | Notifications API URL |
 
-## Integration
+## Service Integration
 
-The Chat service is automatically integrated with:
-- **Matchmaking Service**: Creates chat rooms when offers are accepted
-- **Notification Service**: Sends notifications for new messages
+- **Matchmaking Service**: Triggers chat room creation on offer acceptance
+- **Notification Service**: Sends push notifications for new messages with retry logic
 
 ## Documentation
 
-For detailed documentation, see [README_DETAILED.md](./README_DETAILED.md)
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
