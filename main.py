@@ -53,12 +53,12 @@ app = FastAPI(
 **Swappo Chat Service** enables communication between users with accepted trades.
 
 ### Features
-- 💬 Real-time messaging between matched users
-- 🏠 Chat room management (auto-created on trade acceptance)
-- 📨 Message CRUD operations
-- ✅ Read receipts and message status tracking
-- 🔔 Push notifications on new messages
-- 📊 Chat statistics and analytics
+- Real-time messaging between matched users
+- Chat room management (auto-created on trade acceptance)
+- Message CRUD operations
+- Read receipts and message status tracking
+- Push notifications on new messages
+- Chat statistics and analytics
 
 ### Chat Workflow
 1. Chat room created automatically when trade accepted
